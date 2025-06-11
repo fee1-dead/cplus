@@ -19,3 +19,4 @@ jobs:
           BRANCH: production
           FOLDER: build
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MESSAGE: "{msg}"
