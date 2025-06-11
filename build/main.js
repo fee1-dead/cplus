@@ -1,2 +1,3 @@
-// src/main.tsx
-if (mw.config.get("wgPageName")) {}
+// {{Wikipedia:USync |repo=https://github.com/fee1-dead/cplus |ref=refs/heads/production |path=main.js}}
+// A helper for Special:CheckUser.
+$.when($.ready).then(function(){if(mw.config.get("wgPageName")!=="Special:CheckUser")return;$(".mw-checkuser-helper-table").children("tbody").children("tr").children("td").children("a.mw-userlink").each((i,t)=>{let e=document.createElement("input");e.type="checkbox",e.value=t.firstElementChild?.innerHTML??"",e.classList+="cplus-users",t.before(e)}),$(".mw-checkuser-helper-copy-text-layout").children("div").children("div").children("span").children("span").children("a.oo-ui-buttonElement-button").each((i,t)=>{let e=document.createElement("button");e.innerText="Copy socklist",e.addEventListener("click",()=>{let n=[];$(".cplus-users").each((u,r)=>{let c=r;if(c.checked)n.push(c.value)});let l="{{sock list|"+n.join("|")+"}}";window.navigator.clipboard.writeText(l)}),t.after(e)})});

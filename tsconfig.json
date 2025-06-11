@@ -1,11 +1,11 @@
 {
   "compilerOptions": {
     // Environment setup & latest features
-    "lib": ["ESNext"],
+    "lib": ["ESNext", "DOM"],
     "target": "ESNext",
     "module": "ESNext",
     "moduleDetection": "force",
-    "jsx": "react-jsx",
+    "jsx": "react",
     "allowJs": true,
 
     // Bundler mode
@@ -27,6 +27,7 @@
   },
   "include": [
     "./node_modules/types-mediawiki",
-    "./src/main.tsx"
+    "src/main.ts",
+    "build.ts"
   ]
 }
