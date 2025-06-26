@@ -1,0 +1,1 @@
+$('.cplus-injected').remove()
