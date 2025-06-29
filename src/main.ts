@@ -80,7 +80,7 @@ docReady(() => {
         if (val.startsWith("{{sock list|") && val.endsWith("}}")) {
             const list = val.substring("{{sock list|".length, val.length - "}}".length);
             document.getElementById("cplus-warning")?.remove();
-            return new Set(list.split("|").map((s) => s.trim()))
+            return new Set(list.split("|").map((s) => s.trim()).filter((s) => s !== ""))
         } else if (!document.getElementById("cplus-warning")) {
             const warn = document.createElement("span");
             warn.innerText = "C+ Warning: could not parse input sock list";
