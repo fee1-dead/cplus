@@ -24,7 +24,7 @@ docReady(() => {
         .cplus-injected-header {
             padding: 5px 0 5px 0;
             font-size: 1.14285714em;
-            font-weioght: 700;
+            font-weight: 700;
         }
 
         .cplus-copybtn {
