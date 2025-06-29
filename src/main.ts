@@ -16,7 +16,14 @@ docReady(() => {
     // TODO switch to Codex and Vue see https://en.wikipedia.org/wiki/User:EGardner_(WMF)/codex-hello-world.js
     const results = document.getElementById("checkuserresults");
     if (!results) {
-        console.error("cplus: can't cu results!");
+        console.error("cplus: can't get cu results!");
+        return;
+    }
+
+    const inject = results.previousElementSibling;
+
+    if (!inject || !inject.classList.contains("mw-pager-navigation-bar")) {
+        console.info("cplus: not a 'get actions' page, bailing");
         return;
     }
 
@@ -118,7 +125,6 @@ docReady(() => {
         })
     })
 
-    const inject = results.previousElementSibling ?? results;
 
     const copybtn = document.createElement("button");
     copybtn.classList.add("cplus-injected", "cplus-copybtn");
