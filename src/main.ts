@@ -21,6 +21,12 @@ docReady(() => {
     }
 
     mw.util.addCSS(`
+        .cplus-injected-header {
+            padding: 5px 0 5px 0;
+            font-size: 1.14285714em;
+            font-weioght: 700;
+        }
+
         .cplus-copybtn {
             margin: 5px 0 5px 0;
         }
@@ -60,6 +66,7 @@ docReady(() => {
     users2.forEach(addCheckbox)
 
     const div = document.createElement("div");
+    div.classList.add("cplus-injected", "cplus-injected-top");
     const header = document.createElement("div");
     header.innerText = "C+";
     div.append(header);
@@ -84,7 +91,6 @@ docReady(() => {
     };
     
     div.append(textArea);
-    div.classList.add("cplus-injected", "cplus-injected-top");
     div.classList.add("oo-ui-panelLayout-padded", "oo-ui-panelLayout-framed");
     textArea.classList.add("cplus-injected", "cplus-textarea");
     textArea.oninput = () => {
