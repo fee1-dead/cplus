@@ -20,3 +20,4 @@ jobs:
           FOLDER: build
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MESSAGE: "{msg}"
+          COMMIT_NAME: dbeef
