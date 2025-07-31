@@ -3,9 +3,6 @@
   "workspaces": {
     "": {
       "name": "cplus",
-      "dependencies": {
-        "jsx-dom": "^8.1.6",
-      },
       "devDependencies": {
         "@types/bun": "latest",
         "types-mediawiki": "^1.10.1",
@@ -29,10 +26,6 @@
     "@types/sizzle": ["@types/sizzle@2.3.9", "", {}, "sha512-xzLEyKB50yqCUPUJkIsrVvoWNfFUbIZI+RspLWt8u+tIW/BetMBZtgV2LY/2o+tYH8dRvQ+eoPf3NdhQCcLE2w=="],
 
     "bun-types": ["bun-types@1.2.13", "", { "dependencies": { "@types/node": "*" } }, "sha512-rRjA1T6n7wto4gxhAO/ErZEtOXyEZEmnIHQfl0Dt1QQSB4QV0iP6BZ9/YB5fZaHFQ2dwHFrmPaRQ9GGMX01k9Q=="],
-
-    "csstype": ["csstype@3.1.3", "", {}, "sha512-M1uQkMl8rQK/szD0LNhtqxIPLpimGm8sOBwU7lLnCpSbTyY3yeU1Vc7l4KT5zT4s/yOxHH5O7tIuuLOCnLADRw=="],
-
-    "jsx-dom": ["jsx-dom@8.1.6", "", { "dependencies": { "csstype": "^3.1.3" } }, "sha512-sB8YM7M1aEirenH391h+/Q10UlPuxPA1Gc9OOeONij1eFGu1vAijwzKO1bNcSjCztznjn6puFX43I6FoG8ePjg=="],
 
     "types-mediawiki": ["types-mediawiki@1.10.1", "", { "dependencies": { "@types/jquery": "^3.5.5", "@types/oojs-ui": "^0.46.0" }, "peerDependencies": { "vue": "3.2.23 || 3.2.37 || 3.3.9 || 3.4.27" }, "optionalPeers": ["vue"] }, "sha512-4TLcsy/lbfpLwwIn2l6lBxCzYYMAsJuQUmwfhkcEWA9yMzBpfcSvfcQQbiTUJPOe4UVghc2BI/3GcPkwXr412Q=="],
 

@@ -22,8 +22,13 @@ docReady(() => {
 
     const inject = results.previousElementSibling;
 
-    if (!inject || !inject.classList.contains("mw-pager-navigation-bar")) {
-        console.info("cplus: not a 'get actions' page, bailing");
+    if (!inject) {
+        console.info("cplus: can't find place to inject, bailing");
+        return;
+    }
+
+    if (!inject.classList.contains("mw-pager-navigation-bar") && !inject.classList.contains("mw-checkbox-toggle-controls")) {
+        console.info("cplus: not a 'get actions' or 'get users' page, bailing");
         return;
     }
 
@@ -43,17 +48,14 @@ docReady(() => {
         }
     `)
 
-    const users = document.querySelectorAll(".mw-checkuser-helper-table tbody tr td a.mw-userlink");
-    const users2 = document.querySelectorAll(".mw-checkuser-user-link a.mw-userlink");
-
     const map: Map<string, string> = new Map();
     let counter = 0;
-    
-    const addCheckbox = (elem: Element) => {
+
+    const getClass = (elem: Element) => {
         const username = elem.querySelector("bdi")?.innerText;
 
-        if (username === undefined) return;
-        if (mw.util.isIPAddress(username)) return;
+        if (username === undefined) return undefined;
+        if (mw.util.isIPAddress(username)) return undefined;
 
         let clazz = map.get(username);
 
@@ -61,7 +63,13 @@ docReady(() => {
             clazz = `cplus-checkbox-${counter++}`;
             map.set(username, clazz);
         }
-        
+
+        return clazz;
+    };
+
+    const addCheckbox = (elem: Element) => {
+        const clazz = getClass(elem);
+        if (!clazz) return;
         const uwu = document.createElement("input");
         uwu.type = "checkbox"
         uwu.value = elem.firstElementChild?.innerHTML ?? "";
@@ -69,8 +77,25 @@ docReady(() => {
         elem.before(uwu);
     }
 
-    users.forEach(addCheckbox)
-    users2.forEach(addCheckbox)
+    const getuserslist = document.querySelector(".mw-checkuser-get-users-results");
+    const users = document.querySelectorAll(".mw-checkuser-helper-table tbody tr td a.mw-userlink");
+    users.forEach(addCheckbox);
+
+    if (getuserslist) {
+        // "get users"
+        const users2 = document.querySelectorAll(".mw-checkuser-user-link a.mw-userlink");
+        users2.forEach((elem: Element) => {
+            const clazz = getClass(elem);
+            if (!clazz) return;
+            const input = elem.parentElement?.parentElement?.querySelector("input");
+            if (!input) return;
+            input.classList.add("cplus-checkbox", clazz);
+        });
+    } else {
+        // "get actions" handling
+        const users2 = document.querySelectorAll(".mw-checkuser-user-link a.mw-userlink");
+        users2.forEach(addCheckbox);
+    }
 
     const div = document.createElement("div");
     div.classList.add("cplus-injected", "cplus-injected-top");
@@ -96,7 +121,7 @@ docReady(() => {
         }
         return new Set();
     };
-    
+
     div.append(textArea);
     div.classList.add("oo-ui-panelLayout-padded", "oo-ui-panelLayout-framed");
     textArea.classList.add("cplus-injected", "cplus-textarea");
@@ -124,7 +149,6 @@ docReady(() => {
             })
         })
     })
-
 
     const copybtn = document.createElement("button");
     copybtn.classList.add("cplus-injected", "cplus-copybtn");
