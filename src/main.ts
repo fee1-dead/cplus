@@ -11,7 +11,7 @@ function docReady(fn: () => any) {
     }
 }
 
-docReady(() => {
+docReady(() => setTimeout(() => {
     if (mw.config.get("wgPageName") !== "Special:CheckUser") return;
     // TODO switch to Codex and Vue see https://en.wikipedia.org/wiki/User:EGardner_(WMF)/codex-hello-world.js
     const results = document.getElementById("checkuserresults");
@@ -56,6 +56,7 @@ docReady(() => {
 
         if (username === undefined) return undefined;
         if (mw.util.isIPAddress(username)) return undefined;
+        if (elem.classList.contains("mw-tempuserlink")) return undefined;
 
         let clazz = map.get(username);
 
@@ -159,5 +160,5 @@ docReady(() => {
     });
     div.append(copybtn);
     inject.before(div);
-})
+}, 1000))
 
