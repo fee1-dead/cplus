@@ -11,93 +11,30 @@ function docReady(fn: () => any) {
     }
 }
 
-docReady(() => setTimeout(() => {
-    if (mw.config.get("wgPageName") !== "Special:CheckUser") return;
-    // TODO switch to Codex and Vue see https://en.wikipedia.org/wiki/User:EGardner_(WMF)/codex-hello-world.js
-    const results = document.getElementById("checkuserresults");
-    if (!results) {
-        console.error("cplus: can't get cu results!");
-        return;
-    }
+// https://stackoverflow.com/a/61511955/13854774
 
-    const inject = results.previousElementSibling;
-
-    if (!inject) {
-        console.info("cplus: can't find place to inject, bailing");
-        return;
-    }
-
-    if (!inject.classList.contains("mw-pager-navigation-bar") && !inject.classList.contains("mw-checkbox-toggle-controls")) {
-        console.info("cplus: not a 'get actions' or 'get users' page, bailing");
-        return;
-    }
-
-    mw.util.addCSS(`
-        .cplus-injected-header {
-            padding: 5px 0 5px 0;
-            font-size: 1.14285714em;
-            font-weight: 700;
+function waitForElm(selector: string): Promise<Element | null> {
+    return new Promise(resolve => {
+        if (document.querySelector(selector)) {
+            return resolve(document.querySelector(selector));
         }
 
-        .cplus-copybtn {
-            margin: 5px 0 5px 0;
-        }
-
-        .cplus-checkbox {
-            margin-right: 4px;
-        }
-    `)
-
-    const map: Map<string, string> = new Map();
-    let counter = 0;
-
-    const getClass = (elem: Element) => {
-        const username = elem.querySelector("bdi")?.innerText;
-
-        if (username === undefined) return undefined;
-        if (mw.util.isIPAddress(username)) return undefined;
-        if (elem.classList.contains("mw-tempuserlink")) return undefined;
-
-        let clazz = map.get(username);
-
-        if (!clazz) {
-            clazz = `cplus-checkbox-${counter++}`;
-            map.set(username, clazz);
-        }
-
-        return clazz;
-    };
-
-    const addCheckbox = (elem: Element) => {
-        const clazz = getClass(elem);
-        if (!clazz) return;
-        const uwu = document.createElement("input");
-        uwu.type = "checkbox"
-        uwu.value = elem.firstElementChild?.innerHTML ?? "";
-        uwu.classList.add("cplus-injected", "cplus-checkbox", clazz)
-        elem.before(uwu);
-    }
-
-    const getuserslist = document.querySelector(".mw-checkuser-get-users-results");
-    const users = document.querySelectorAll(".mw-checkuser-helper-table tbody tr td a.mw-userlink");
-    users.forEach(addCheckbox);
-
-    if (getuserslist) {
-        // "get users"
-        const users2 = document.querySelectorAll(".mw-checkuser-user-link a.mw-userlink");
-        users2.forEach((elem: Element) => {
-            const clazz = getClass(elem);
-            if (!clazz) return;
-            const input = elem.parentElement?.parentElement?.querySelector("input");
-            if (!input) return;
-            input.classList.add("cplus-checkbox", clazz);
+        const observer = new MutationObserver(mutations => {
+            if (document.querySelector(selector)) {
+                observer.disconnect();
+                resolve(document.querySelector(selector));
+            }
         });
-    } else {
-        // "get actions" handling
-        const users2 = document.querySelectorAll(".mw-checkuser-user-link a.mw-userlink");
-        users2.forEach(addCheckbox);
-    }
 
+        // If you get "parameter 1 is not of type 'Node'" error, see https://stackoverflow.com/a/77855838/492336
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+    });
+}
+
+function mkCplusArea(map: Map<string, string>): HTMLDivElement {
     const div = document.createElement("div");
     div.classList.add("cplus-injected", "cplus-injected-top");
     const header = document.createElement("div");
@@ -149,7 +86,7 @@ docReady(() => setTimeout(() => {
                 })
             })
         })
-    })
+    })    
 
     const copybtn = document.createElement("button");
     copybtn.classList.add("cplus-injected", "cplus-copybtn");
@@ -159,6 +96,124 @@ docReady(() => setTimeout(() => {
         window.navigator.clipboard.writeText(textArea.value);
     });
     div.append(copybtn);
-    inject.before(div);
-}, 1000))
+    return div;
+}
+
+docReady(() => {
+    const is_si = mw.config.get("wgPageName").startsWith("Special:SuggestedInvestigations");
+    if (!is_si && mw.config.get("wgPageName") !== "Special:CheckUser") return;
+
+    mw.util.addCSS(`
+        .cplus-injected-header {
+            padding: 5px 0 5px 0;
+            font-size: 1.14285714em;
+            font-weight: 700;
+        }
+
+        .cplus-copybtn {
+            margin: 5px 0 5px 0;
+        }
+
+        .cplus-checkbox {
+            margin-right: 4px;
+        }
+    `)
+    const promise: Promise<any> = is_si ? new Promise(f => f(0)) : waitForElm(".mw-checkuser-helper-table");
+    promise.then(_ => {
+        // TODO switch to Codex and Vue see https://en.wikipedia.org/wiki/User:EGardner_(WMF)/codex-hello-world.js
+        const results = document.getElementById("checkuserresults");
+        if (!results && !is_si) {
+            console.error("cplus: can't get cu results!");
+            return;
+        }
+
+        const inject = is_si ? document.querySelector(".ext-checkuser-suggestedinvestigations-table")?.parentElement?.parentElement : results?.previousElementSibling;
+
+        if (!inject) {
+            console.info("cplus: can't find place to inject, bailing");
+            return;
+        }
+
+        if (!is_si && !inject.classList.contains("mw-pager-navigation-bar") && !inject.classList.contains("mw-checkbox-toggle-controls")) {
+            console.info("cplus: not a 'get actions' or 'get users' page, bailing");
+            return;
+        }
+
+        const map: Map<string, string> = new Map();
+        let counter = 0;
+
+        const getClass = (elem: Element) => {
+            const username = elem.querySelector("bdi")?.innerText;
+
+            if (username === undefined) return undefined;
+            if (mw.util.isIPAddress(username)) return undefined;
+            if (elem.classList.contains("mw-tempuserlink")) return undefined;
+
+            let clazz = map.get(username);
+
+            if (!clazz) {
+                clazz = `cplus-checkbox-${counter++}`;
+                map.set(username, clazz);
+            }
+
+            return clazz;
+        };
+
+        const addCheckbox = (elem: Element) => {
+            const clazz = getClass(elem);
+            if (!clazz) return;
+            const uwu = document.createElement("input");
+            uwu.type = "checkbox"
+            uwu.value = elem.firstElementChild?.innerHTML ?? "";
+            uwu.classList.add("cplus-injected", "cplus-checkbox", clazz)
+            elem.before(uwu);
+        }
+
+        const getuserslist = document.querySelector(".mw-checkuser-get-users-results");
+        const users = document.querySelectorAll(".mw-checkuser-helper-table tbody tr td a.mw-userlink");
+        users.forEach(addCheckbox);
+
+        if (getuserslist) {
+            // "get users"
+            const users2 = document.querySelectorAll(".mw-checkuser-user-link a.mw-userlink");
+            users2.forEach((elem: Element) => {
+                const clazz = getClass(elem);
+                if (!clazz) return;
+                const input = elem.parentElement?.parentElement?.querySelector("input");
+                if (!input) return;
+                input.classList.add("cplus-checkbox", clazz);
+            });
+        } else if (is_si) {
+            // SuggestedInvestigations
+            const users2 = document.querySelectorAll(".ext-checkuser-suggestedinvestigations-table tbody tr td ul li a.mw-userlink");
+            users2.forEach(addCheckbox);
+        } else {
+            // "get actions" handling
+            const users2 = document.querySelectorAll(".mw-checkuser-user-link a.mw-userlink");
+            users2.forEach(addCheckbox);
+        }
+
+        const checkboxes = Array.from(document.querySelectorAll(".cplus-checkbox"));
+        let lastchecked: [Element, number] | null = null;
+        checkboxes.forEach((elem: Element, idx: number) => {
+            elem.addEventListener('click', (e) => {
+                const ev = <KeyboardEvent>e;
+                if (lastchecked !== null && ev.shiftKey) {
+                    const lastcheckedelem = <HTMLInputElement>lastchecked[0];
+                    const a = lastchecked[1];
+                    const b = idx;
+                    checkboxes.slice(Math.min(a,b), Math.max(a,b) + 1).forEach(box => {
+                        (<HTMLInputElement> box).checked = lastcheckedelem.checked;
+                        box.dispatchEvent(new Event('change'))
+                    })
+                }
+                lastchecked = [elem, idx];
+            })
+        })
+
+        const div = mkCplusArea(map);
+
+        inject.before(div);
+    })
+});
 
