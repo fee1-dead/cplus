@@ -13,16 +13,24 @@ function docReady(fn: () => any) {
 
 // https://stackoverflow.com/a/61511955/13854774
 
-function waitForElm(selector: string): Promise<Element | null> {
+function getCUTable(): Element | null {
+    const table = document.querySelector(".mw-checkuser-helper-table");
+    const numRows = table?.querySelector("tbody")?.querySelectorAll("tr").length ?? 0;
+    return numRows >= 2 ? table : null;
+}
+
+function waitForCUTable(): Promise<Element | null> {
     return new Promise(resolve => {
-        if (document.querySelector(selector)) {
-            return resolve(document.querySelector(selector));
+        const t = getCUTable();
+        if (t) {
+            return resolve(t);
         }
 
-        const observer = new MutationObserver(mutations => {
-            if (document.querySelector(selector)) {
+        const observer = new MutationObserver(_ => {
+            const t = getCUTable();
+            if (t) {
                 observer.disconnect();
-                resolve(document.querySelector(selector));
+                resolve(t);
             }
         });
 
@@ -118,7 +126,7 @@ docReady(() => {
             margin-right: 4px;
         }
     `)
-    const promise: Promise<any> = is_si ? new Promise(f => f(0)) : waitForElm(".mw-checkuser-helper-table");
+    const promise: Promise<any> = is_si ? new Promise(f => f(0)) : waitForCUTable();
     promise.then(_ => {
         // TODO switch to Codex and Vue see https://en.wikipedia.org/wiki/User:EGardner_(WMF)/codex-hello-world.js
         const results = document.getElementById("checkuserresults");
