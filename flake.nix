@@ -9,7 +9,7 @@
       pkgs = import nixpkgs { inherit system; };
     in
     {
-      devShells.default = with pkgs; (pkgs.mkShell.override { stdenv = clang15Stdenv; }) rec {
+      devShells.default = with pkgs; mkShell rec {
         buildInputs = [
           bun
         ];
